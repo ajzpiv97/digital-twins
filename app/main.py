@@ -1,7 +1,7 @@
 import streamlit as st
 from digital_twin.data_loader import load_centrality_data, load_shortest_paths
-from digital_twin.components.graphs import render_topology_graph
-from digital_twin.components.chat import render_chat_interface
+from components.graphs import render_topology_graph
+from components.chat import render_chat_interface
 
 # --- Page Config ---
 st.set_page_config(
