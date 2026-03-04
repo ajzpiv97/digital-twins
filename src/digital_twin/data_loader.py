@@ -2,13 +2,12 @@ import pandas as pd
 from pathlib import Path
 import streamlit as st
 
-# Point this to where your JupyterLab Part 1 outputs are stored
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+from digital_twin.schemas.settings import get_settings
 
 @st.cache_data
 def load_centrality_data() -> pd.DataFrame:
     """Loads Degree Centrality (#DC) output."""
-    file_path = DATA_DIR / "degree_centrality.parquet"
+    file_path = get_settings().processed_data_dir / "degree_centrality.parquet"
     if file_path.exists():
         return pd.read_parquet(file_path)
     
@@ -21,7 +20,7 @@ def load_centrality_data() -> pd.DataFrame:
 @st.cache_data
 def load_shortest_paths() -> pd.DataFrame:
     """Loads All-Pairs Shortest Path (#ASP) output."""
-    file_path = DATA_DIR / "shortest_path.parquet"
+    file_path = get_settings().processed_data_dir / "shortest_path.parquet"
     if file_path.exists():
         return pd.read_parquet(file_path)
     
