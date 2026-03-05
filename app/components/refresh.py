@@ -46,6 +46,10 @@ def render_refresh_button(settings):
 
     if settings.app_env != "platform":
         st.caption("🖥️ Running locally — data refresh requires `APP_ENV=platform`.")
+        if st.button("🔄 Reset Local Simulation State", use_container_width=True):
+            st.session_state["resolved_components"] = []
+            st.session_state["resolved_sensors"] = []
+            st.rerun()
         return
 
     configured = all([settings.pmtx_token, settings.pmtx_project])
@@ -81,6 +85,8 @@ def render_refresh_button(settings):
 
             logger.info("All concepts complete — clearing data cache")
             st.cache_data.clear()
+            st.session_state["resolved_components"] = []
+            st.session_state["resolved_sensors"] = []
             st.success("✅ All programs complete. Dashboard will reload with fresh data.")
             st.rerun()
 

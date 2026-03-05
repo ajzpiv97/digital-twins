@@ -43,6 +43,34 @@ df_hotspots = DataLoader.get_hotspot_metadata(_base / settings.concept_hotspot)
 df_linked_to = DataLoader.get_linked_to(_base / settings.concept_linked_to)
 df_propagated = DataLoader.get_propagated_failures(_base / settings.concept_propagated_failure)
 
+# --- State Management for simulated RCA actions ---
+if "resolved_components" not in st.session_state:
+    st.session_state["resolved_components"] = []
+if "resolved_sensors" not in st.session_state:
+    st.session_state["resolved_sensors"] = []
+
+resolved_components = st.session_state["resolved_components"]
+resolved_sensors = st.session_state["resolved_sensors"]
+
+if resolved_components:
+    # Filter the active data matching the resolved list
+    if df_hotspots is not None and not df_hotspots.empty:
+        df_hotspots = df_hotspots[~df_hotspots["Component"].isin(resolved_components)]
+        
+    if df_centrality is not None and not df_centrality.empty:
+        df_centrality = df_centrality[~df_centrality["Component"].isin(resolved_components)]
+        
+    if df_paths is not None and not df_paths.empty:
+        # Remove paths touching resolved nodes
+        df_paths = df_paths[~(df_paths["StartNode"].isin(resolved_components) | df_paths["EndNode"].isin(resolved_components))]
+        
+    if df_linked_to is not None and not df_linked_to.empty:
+        df_linked_to = df_linked_to[~(df_linked_to["Parent"].isin(resolved_components) | df_linked_to["Component"].isin(resolved_components))]
+
+if resolved_sensors:
+    if df_propagated is not None and not df_propagated.empty:
+        df_propagated = df_propagated[~df_propagated["OriginalSensor"].isin(resolved_sensors)]
+
 # --- Computations for top-level KPIs ---
 total_components = len(df_centrality)
 critical_count = df_hotspots['Component'].nunique() if df_hotspots is not None and not df_hotspots.empty else 0

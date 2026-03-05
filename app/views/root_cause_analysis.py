@@ -41,11 +41,20 @@ def render_root_cause_analysis(df_hotspots):
 
             st.divider()
 
-            # Persist sent state so confirmation doesn't vanish on next rerun
-            if st.session_state.get(sent_key):
-                st.success(f"Diagnostics payload transmitted to the **{row['Team']}** operations channel.")
-            elif st.button(f"✉️ Page {row['FullName']} & Send Diagnostic Report", key=f"email_{idx}"):
+            # When clicked, add to the resolved lists and instantly rerun.
+            # The row will be visually removed from the app on reload.
+            if st.button(f"✉️ Page {row['FullName']} & Send Diagnostic Report", key=f"email_{idx}", use_container_width=True):
                 logger.info("Routing diagnostic report to %s (%s)", row['FullName'], row['Team'])
-                st.session_state[sent_key] = True
+                
+                # Append the target component to the fixed list
+                if "resolved_components" in st.session_state:
+                    st.session_state["resolved_components"].append(row['Component'])
+                    
+                # Append all originating root causes linked to this hotspot
+                if "resolved_sensors" in st.session_state:
+                    for c in causes:
+                        sensor = c.sensor if hasattr(c, 'sensor') else c['sensor']
+                        st.session_state["resolved_sensors"].append(sensor)
+                
                 st.toast(f"Critical report successfully routed to {row['FullName']}!", icon="✅")
                 st.rerun()
