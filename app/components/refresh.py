@@ -13,9 +13,9 @@ def render_refresh_button(settings):
         st.caption("🖥️ Running locally — data refresh requires `APP_ENV=platform`.")
         return
 
-    configured = all([settings.pmtx_token, settings.jarvispy_url, settings.pmtx_project])
+    configured = all([settings.pmtx_token, settings.pmtx_project])
     if not configured:
-        st.caption("Configure `PMTX_TOKEN`, `JARVISPY_URL`, and `PMTX_PROJECT` to enable live refresh.")
+        st.caption("Configure `PMTX_TOKEN`, and `PMTX_PROJECT` to enable live refresh.")
         return
 
     concepts_to_run = [
@@ -33,7 +33,7 @@ def render_refresh_button(settings):
         try:
             import prometheux_chain as px
 
-            px.config.set("JARVISPY_URL", settings.jarvispy_url)
+            # px.config.set("JARVISPY_URL", settings.jarvispy_url)
 
             with st.spinner("Running Vadalog reasoning programs..."):
                 for concept_name, label in configured_concepts:

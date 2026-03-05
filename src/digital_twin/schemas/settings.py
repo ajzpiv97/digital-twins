@@ -10,7 +10,6 @@ class Settings(BaseSettings):
 
     # Prometheux backend (optional — required for data refresh)
     pmtx_token: str = ""
-    jarvispy_url: str = ""
     pmtx_project: str = ""
     concept_centrality: str = "component_centrality"
     concept_shortest_path: str = "shortest_path"
