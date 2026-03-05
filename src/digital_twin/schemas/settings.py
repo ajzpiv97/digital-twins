@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     concept_shortest_path: str = "shortest_path"
     concept_hotspot: str = "hotspot_metadata"
     concept_linked_to: str = "linked_to"
-    concept_propagated_failure: str = "propagated_failures"
+    concept_propagated_failure: str = "propagated_failure"
 
     model_config = ConfigDict(
         extra="ignore"
