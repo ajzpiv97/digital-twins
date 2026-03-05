@@ -1,24 +1,29 @@
 import streamlit as st
 import requests
+import re
 
 CHAT_API_URL = "https://chat-docs.prometheux.ai/api/docsChat"
 
-def _stream_prometheux_response(messages: list[dict]):
+def _get_prometheux_response(messages: list[dict]) -> str:
     """
-    Generator that streams tokens from the Prometheux Chat API.
-    Parses the AI SDK wire format: 0:"token"
+    Calls the Prometheux Chat API and returns the full response as a string.
+    Handles the AI SDK streaming wire format: 0:"token"
+    Falls back to returning the raw body if parsing yields nothing.
     """
     payload = {"messages": messages}
-    with requests.post(CHAT_API_URL, json=payload, stream=True, timeout=60) as resp:
-        resp.raise_for_status()
-        for chunk in resp.iter_content(chunk_size=512, decode_unicode=True):
-            if not chunk:
-                continue
-            for line in chunk.split("\n"):
-                line = line.strip()
-                # AI SDK format: 0:"token"
-                if line.startswith('0:"') and line.endswith('"'):
-                    yield line[3:-1].replace("\\n", "\n")
+    resp = requests.post(CHAT_API_URL, json=payload, stream=True, timeout=60)
+    resp.raise_for_status()
+
+    raw = resp.text
+
+    # Try parsing AI SDK token format: 0:"..." (possibly with escaped quotes inside)
+    tokens = re.findall(r'0:"((?:[^"\\]|\\.)*)"', raw)
+    if tokens:
+        return "".join(tokens).replace("\\n", "\n").replace('\\"', '"')
+
+    # Fallback: strip all data: prefixes and return plain text
+    lines = [l.removeprefix("data:").strip() for l in raw.splitlines() if l.strip() and not l.strip().startswith("[")]
+    return "\n".join(lines) if lines else raw.strip()
 
 
 def render_chat_interface():
@@ -41,14 +46,15 @@ def render_chat_interface():
         st.chat_message("user").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # Only send the last 10 messages to keep context window manageable
         context = st.session_state.messages[-10:]
 
         with st.chat_message("assistant"):
-            try:
-                response_text = st.write_stream(_stream_prometheux_response(context))
-            except Exception as e:
-                response_text = f"⚠️ Could not reach the Prometheux Chat API: `{e}`"
-                st.warning(response_text)
+            with st.spinner("Querying Prometheux..."):
+                try:
+                    response_text = _get_prometheux_response(context)
+                    st.markdown(response_text)
+                except Exception as e:
+                    response_text = f"⚠️ Could not reach the Prometheux Chat API: `{e}`"
+                    st.warning(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})

@@ -15,14 +15,25 @@ st.set_page_config(
 )
 
 # --- Sidebar Configuration ---
+settings = get_settings()
+
+# Safe base path — falls back to cwd if PROCESSED_DATA_DIR is not set
+try:
+    _base = settings.processed_data_dir
+except Exception:
+    _base = None
+
+def _default(subdir: str) -> str:
+    return str(_base / subdir) if _base else ""
+
 with st.sidebar:
     st.header("⚙️ Configuration")
-    settings = get_settings()
-    # Let the user provide the folder locations
-    centrality_folder = st.text_input("Centrality Data Folder", value=str(settings.processed_data_dir / "component_centrality"))
-    paths_folder = st.text_input("Shortest Paths Folder", value=str(settings.processed_data_dir / "shortest_path"))
-    hotspots_folder = st.text_input("Hotspots Metadata Folder", value=str(settings.processed_data_dir / "hotspot_metadata"))
-    linked_to_folder = st.text_input("Component Relationships Folder", value=str(settings.processed_data_dir / "linked_to"))
+    with st.form("folder_config", border=False):
+        centrality_folder = st.text_input("Centrality Data Folder", value=_default("component_centrality"))
+        paths_folder = st.text_input("Shortest Paths Folder", value=_default("shortest_path"))
+        hotspots_folder = st.text_input("Hotspots Metadata Folder", value=_default("hotspot_metadata"))
+        linked_to_folder = st.text_input("Component Relationships Folder", value=_default("linked_to"))
+        st.form_submit_button("Apply", use_container_width=True)
     render_refresh_button(settings)
 
 # Load Data
