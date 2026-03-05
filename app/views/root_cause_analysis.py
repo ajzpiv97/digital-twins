@@ -55,6 +55,8 @@ def render_root_cause_analysis(df_hotspots):
                     for c in causes:
                         sensor = c.sensor if hasattr(c, 'sensor') else c['sensor']
                         st.session_state["resolved_sensors"].append(sensor)
-                
-                st.toast(f"Critical report successfully routed to {row['FullName']}!", icon="✅")
+                        
+                st.success(f"✅ Critical report successfully routed to {row['FullName']}!")
+                import time
+                time.sleep(1.5)
                 st.rerun()

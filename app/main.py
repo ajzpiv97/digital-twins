@@ -1,4 +1,5 @@
 import streamlit as st
+from pathlib import Path
 from digital_twin.data_loader import DataLoader
 from digital_twin.schemas.settings import get_settings
 from views.overview import render_overview
@@ -86,7 +87,17 @@ st.title("🚀 Digital Twin Demo: Rocket Engine Failure Detection & Response")
 st.markdown("Revolutionizing Aerospace Safety Through Intelligent Failure Prediction and Response")
 
 # --- Top-Level KPIs ---
-st.subheader("System Overview")
+col_sys, col_time = st.columns([3, 1])
+with col_sys:
+    st.subheader("System Overview")
+with col_time:
+    last_run = "Unknown"
+    timestamp_file = Path.cwd() / "last_run.txt"
+    if timestamp_file.exists():
+        with open(timestamp_file, "r") as f:
+            last_run = f.read().strip()
+    st.caption(f"⏱️ **Vadalog Reasoning Last Run:** {last_run}")
+
 metric1, metric2, metric3 = st.columns(3)
 metric1.metric("Monitored Components", str(total_components))
 hotspot_delta = "⚠ Requires Attention" if critical_count > 0 else "✓ All Clear"

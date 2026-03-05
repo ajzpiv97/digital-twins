@@ -87,6 +87,14 @@ def render_refresh_button(settings):
             st.cache_data.clear()
             st.session_state["resolved_components"] = []
             st.session_state["resolved_sensors"] = []
+            
+            import datetime
+            from pathlib import Path
+            now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            with open(Path.cwd() / "last_run.txt", "w") as f:
+                f.write(now_str)
+                
             st.success("✅ All programs complete. Dashboard will reload with fresh data.")
             st.rerun()
 
