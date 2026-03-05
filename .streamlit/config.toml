@@ -1,3 +1,7 @@
 [server]
+# Required when running behind a tunnel (npx localtunnel) from JupyterLab.
+# Without these, native widgets (st.metric, st.dataframe, etc.) won't render
+# because Streamlit's CORS/XSRF checks silently block their WebSocket connections.
 enableCORS = false
 enableXsrfProtection = false
+headless = true
