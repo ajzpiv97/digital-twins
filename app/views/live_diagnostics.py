@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from components.graphs import render_topology_graph
+from components.graphs import render_topology_graph, render_centrality_table
 from components.chat import render_chat_interface
 
 def render_diagnostics(df_centrality: pd.DataFrame, df_paths: pd.DataFrame, df_hotspots: pd.DataFrame, df_linked_to: pd.DataFrame | None = None):
@@ -52,10 +52,7 @@ def render_diagnostics(df_centrality: pd.DataFrame, df_paths: pd.DataFrame, df_h
             """,
             unsafe_allow_html=True
         )
-        st.dataframe(
-            df_centrality.style.background_gradient(cmap='Reds', subset=['CentralityScore']), 
-            width='stretch'
-        )
+        render_centrality_table(df_centrality)
 
     st.divider()
     with st.expander("💬 Prometheux Assistant", expanded=False):
