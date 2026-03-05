@@ -37,10 +37,10 @@ with st.sidebar:
     render_refresh_button(settings)
 
 # Load Data
-df_centrality = DataLoader.get_centrality_data(centrality_folder)
-df_paths = DataLoader.get_shortest_paths(paths_folder)
-df_hotspots = DataLoader.get_hotspot_metadata(hotspots_folder)
-df_linked_to = DataLoader.get_linked_to(linked_to_folder)
+df_centrality = DataLoader.get_centrality_data(_base / settings.concept_centrality)
+df_paths = DataLoader.get_shortest_paths(_base / settings.concept_shortest_path)
+df_hotspots = DataLoader.get_hotspot_metadata(_base / settings.concept_hotspot)
+df_linked_to = DataLoader.get_linked_to(_base / settings.concept_linked_to)
 
 # --- Header ---
 st.title("🚀 Digital Twin Demo: Rocket Engine Failure Detection & Response")
