@@ -14,11 +14,11 @@ def render_topology_graph(df_paths: pd.DataFrame):
     for _, row in df_paths.iterrows():
         src = str(row['StartNode'])
         dst = str(row['EndNode'])
-        weight = row['MinHops']
+        weight = row['Dist']
         
         net.add_node(src, label=src, color="#FF4B4B")
         net.add_node(dst, label=dst, color="#FF4B4B")
-        net.add_edge(src, dst, title=f"Hops: {weight}")
+        net.add_edge(src, dst, title=f"Distance: {weight}")
         
     # Configure physics for a cool interactive bounce effect
     net.repulsion(node_distance=100, spring_length=200)

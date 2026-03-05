@@ -16,5 +16,6 @@ dependencies = [
     "networkx>=3.2.1",
     "pyvis>=0.3.2",
     "pydantic",
-    "pydantic-settings"
+    "pydantic-settings",
+    "matplotlib"
 ]
