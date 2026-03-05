@@ -29,7 +29,7 @@ def render_propagation_trace(df_propagated: pd.DataFrame):
         for idx, row in df_subset.iterrows():
             order = row['PropagationOrder']
             orig = row['OriginalSensor']
-            target = row['NextAffected']
+            target = row['AffectedComponent']
             
             # Using the first element as the Origin
             if row.equals(df_subset.iloc[0]):

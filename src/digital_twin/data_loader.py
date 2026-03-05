@@ -126,6 +126,6 @@ class DataLoader:
         logger.warning("Propagated failure data not found — using fallback mock data")
         return pd.DataFrame({
             "OriginalSensor": ["Sensor_A", "Sensor_A", "Sensor_A"],
-            "NextAffected": ["Fuel_Pump", "HPOTP", "Main_Valve"],
+            "AffectedComponent": ["Fuel_Pump", "HPOTP", "Main_Valve"],
             "PropagationOrder": [1, 2, 3]
         })
