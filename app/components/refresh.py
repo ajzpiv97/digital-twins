@@ -1,4 +1,7 @@
 import streamlit as st
+from digital_twin.logger import get_logger
+
+logger = get_logger(__name__)
 
 def _resolve_project_id(px, project_name: str) -> str | None:
     """
@@ -8,15 +11,21 @@ def _resolve_project_id(px, project_name: str) -> str | None:
     cache_key = f"pmtx_project_id_{project_name}"
 
     if cache_key not in st.session_state:
+        logger.info("Resolving project ID for: '%s'", project_name)
         projects = px.list_projects()
+        logger.debug("Found %d projects on platform", len(projects))
         match = next((p for p in projects if p.get("name") == project_name), None)
         if match is None:
             available = [p.get("name") for p in projects]
+            logger.error("Project '%s' not found. Available: %s", project_name, available)
             raise ValueError(
                 f"Project '{project_name}' not found. "
                 f"Available projects: {available}"
             )
         st.session_state[cache_key] = match["id"]
+        logger.info("Resolved project ID: %s", match["id"])
+    else:
+        logger.debug("Using cached project ID for '%s'", project_name)
 
     return st.session_state[cache_key]
 
@@ -60,12 +69,16 @@ def render_refresh_button(settings):
             with st.spinner("Running Vadalog reasoning programs..."):
                 for concept_name, label in configured_concepts:
                     with st.status(f"Running: {label}", expanded=False):
+                        logger.info("Running concept: %s (project_id=%s)", concept_name, project_id)
                         px.run_concept(project_id=project_id, concept_name=concept_name)
+                        logger.info("Concept complete: %s", concept_name)
                         st.write(f"✅ {label} complete")
 
+            logger.info("All concepts complete — clearing data cache")
             st.cache_data.clear()
             st.success("✅ All programs complete. Dashboard will reload with fresh data.")
             st.rerun()
 
         except Exception as e:
+            logger.exception("Refresh failed: %s", e)
             st.error(f"Refresh failed: `{e}`")

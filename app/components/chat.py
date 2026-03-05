@@ -1,29 +1,31 @@
 import streamlit as st
 import requests
 import re
+from digital_twin.logger import get_logger
+
+logger = get_logger(__name__)
 
 CHAT_API_URL = "https://chat-docs.prometheux.ai/api/docsChat"
 
 def _get_prometheux_response(messages: list[dict]) -> str:
-    """
-    Calls the Prometheux Chat API and returns the full response as a string.
-    Handles the AI SDK streaming wire format: 0:"token"
-    Falls back to returning the raw body if parsing yields nothing.
-    """
+    logger.info("Calling Prometheux Chat API — %d messages in context", len(messages))
     payload = {"messages": messages}
     resp = requests.post(CHAT_API_URL, json=payload, stream=True, timeout=60)
     resp.raise_for_status()
 
     raw = resp.text
+    logger.debug("Raw API response length: %d chars", len(raw))
 
-    # Try parsing AI SDK token format: 0:"..." (possibly with escaped quotes inside)
     tokens = re.findall(r'0:"((?:[^"\\]|\\.)*)"', raw)
     if tokens:
+        logger.debug("Parsed %d AI SDK tokens", len(tokens))
         return "".join(tokens).replace("\\n", "\n").replace('\\"', '"')
 
-    # Fallback: strip all data: prefixes and return plain text
+    # Fallback: strip data: prefixes
+    logger.warning("AI SDK token format not matched — falling back to plain text extraction")
     lines = [l.removeprefix("data:").strip() for l in raw.splitlines() if l.strip() and not l.strip().startswith("[")]
     return "\n".join(lines) if lines else raw.strip()
+
 
 
 def render_chat_interface():

@@ -27,13 +27,13 @@ def _default(subdir: str) -> str:
     return str(_base / subdir) if _base else ""
 
 with st.sidebar:
-    st.header("⚙️ Configuration")
-    with st.form("folder_config", border=False):
-        centrality_folder = st.text_input("Centrality Data Folder", value=_default("component_centrality"))
-        paths_folder = st.text_input("Shortest Paths Folder", value=_default("shortest_path"))
-        hotspots_folder = st.text_input("Hotspots Metadata Folder", value=_default("hotspot_metadata"))
-        linked_to_folder = st.text_input("Component Relationships Folder", value=_default("linked_to"))
-        st.form_submit_button("Apply", use_container_width=True)
+    # st.header("⚙️ Configuration")
+    # with st.form("folder_config", border=False):
+    #     centrality_folder = st.text_input("Centrality Data Folder", value=_default("component_centrality"))
+    #     paths_folder = st.text_input("Shortest Paths Folder", value=_default("shortest_path"))
+    #     hotspots_folder = st.text_input("Hotspots Metadata Folder", value=_default("hotspot_metadata"))
+    #     linked_to_folder = st.text_input("Component Relationships Folder", value=_default("linked_to"))
+    #     st.form_submit_button("Apply", use_container_width=True)
     render_refresh_button(settings)
 
 # Load Data
