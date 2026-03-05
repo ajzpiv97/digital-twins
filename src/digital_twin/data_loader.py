@@ -79,3 +79,16 @@ class DataLoader:
                 [CauseMetadata(sensor="THERMAL_RELAY", code="TR1", related="OVRHT")]
             ]
         })
+
+    @classmethod
+    def get_linked_to(cls, folder_path: str | Path) -> pd.DataFrame:
+        """Retrieves Parent → Component relationship data."""
+        df = cls.load_parquet_from_folder(str(folder_path))
+        if df is not None:
+            return df
+
+        # Fallback mock data
+        return pd.DataFrame({
+            "Parent": ["HPOTP", "HPOTP", "Main_Valve", "Fuel_Pump"],
+            "Component": ["Fuel_Pump", "Sensor_A", "Nozzle", "Sensor_A"],
+        })
