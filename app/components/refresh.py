@@ -4,15 +4,18 @@ def render_refresh_button(settings):
     """
     Sidebar widget that triggers re-execution of Vadalog concepts
     via the prometheux_chain SDK, then clears Streamlit's data cache.
-    Settings fields are read directly from the pydantic Settings object.
+    Requires APP_ENV=platform to be set in the environment.
     """
     st.divider()
     st.markdown("**🔄 Refresh Analysis**")
 
-    configured = all([settings.pmtx_token, settings.jarvispy_url, settings.pmtx_project])
+    if settings.app_env != "platform":
+        st.caption("🖥️ Running locally — data refresh requires `APP_ENV=platform`.")
+        return
 
+    configured = all([settings.pmtx_token, settings.jarvispy_url, settings.pmtx_project])
     if not configured:
-        st.caption("Configure `PMTX_TOKEN`, `JARVISPY_URL`, and `PMTX_PROJECT` in your environment to enable live refresh.")
+        st.caption("Configure `PMTX_TOKEN`, `JARVISPY_URL`, and `PMTX_PROJECT` to enable live refresh.")
         return
 
     concepts_to_run = [
@@ -23,18 +26,14 @@ def render_refresh_button(settings):
     configured_concepts = [(cid, label) for cid, label in concepts_to_run if cid]
 
     if not configured_concepts:
-        st.caption("No concept names configured. Set `CONCEPT_CENTRALITY`, `CONCEPT_SHORTEST_PATH`, or `CONCEPT_HOTSPOT`.")
+        st.caption("No concept names configured.")
         return
 
     if st.button("🔄 Re-run Vadalog Programs", use_container_width=True):
         try:
             import prometheux_chain as px
 
-            # SDK needs the backend URL configured — token is already in env via pydantic-settings
-            # px.config.set("JARVISPY_URL", settings.jarvispy_url)
-
-            # Resolve project ID from the project name
-            # project_id = px.get_project_id(project_name=settings.pmtx_project)
+            px.config.set("JARVISPY_URL", settings.jarvispy_url)
 
             with st.spinner("Running Vadalog reasoning programs..."):
                 for concept_name, label in configured_concepts:
@@ -42,7 +41,6 @@ def render_refresh_button(settings):
                         px.run_concept(project_id=settings.pmtx_project, concept_name=concept_name)
                         st.write(f"✅ {label} complete")
 
-            # Clear all cached parquet reads so the dashboard reloads fresh data
             st.cache_data.clear()
             st.success("✅ All programs complete. Dashboard will reload with fresh data.")
             st.rerun()
