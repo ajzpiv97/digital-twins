@@ -63,10 +63,10 @@ def render_topology_graph(df_paths: pd.DataFrame, df_linked_to: pd.DataFrame | N
             grouped = df_linked_to.groupby("Parent")["Component"].apply(list).reset_index()
             grouped.columns = ["Parent", "Linked Components"]
             grouped["Linked Components"] = grouped["Linked Components"].apply(lambda cs: " → ".join(cs))
-            st.dataframe(grouped, width='stretch', hide_index=True)
+            st.dataframe(grouped, use_container_width=True, hide_index=True)
 
 
 def render_centrality_table(df: pd.DataFrame):
     """Renders the centrality DataFrame with a cached background gradient style."""
     styled = _build_centrality_style(df)
-    st.dataframe(styled, width='stretch')
+    st.dataframe(styled, use_container_width=True)
