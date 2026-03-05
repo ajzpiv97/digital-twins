@@ -41,4 +41,4 @@ def render_topology_graph(df_paths: pd.DataFrame, df_linked_to: pd.DataFrame | N
             grouped = df_linked_to.groupby("Parent")["Component"].apply(list).reset_index()
             grouped.columns = ["Parent", "Linked Components"]
             grouped["Linked Components"] = grouped["Linked Components"].apply(lambda cs: " → ".join(cs))
-            st.dataframe(grouped, use_container_width=True, hide_index=True)
+            st.dataframe(grouped, width='stretch', hide_index=True)

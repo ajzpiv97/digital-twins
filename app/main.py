@@ -4,6 +4,7 @@ from digital_twin.schemas.settings import get_settings
 from views.overview import render_overview
 from views.live_diagnostics import render_diagnostics
 from views.root_cause_analysis import render_root_cause_analysis
+from components.refresh import render_refresh_button
 
 # --- Page Config ---
 st.set_page_config(
@@ -22,6 +23,7 @@ with st.sidebar:
     paths_folder = st.text_input("Shortest Paths Folder", value=str(settings.processed_data_dir / "shortest_path"))
     hotspots_folder = st.text_input("Hotspots Metadata Folder", value=str(settings.processed_data_dir / "hotspot_metadata"))
     linked_to_folder = st.text_input("Component Relationships Folder", value=str(settings.processed_data_dir / "linked_to"))
+    render_refresh_button(settings)
 
 # Load Data
 df_centrality = DataLoader.get_centrality_data(centrality_folder)
