@@ -1,9 +1,13 @@
 import streamlit as st
 import requests
 import re
-from digital_twin.logger import get_logger
+import logging
 
-logger = get_logger(__name__)
+try:
+    from digital_twin.logger import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
 
 CHAT_API_URL = "https://chat-docs.prometheux.ai/api/docsChat"
 

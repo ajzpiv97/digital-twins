@@ -1,7 +1,12 @@
 import streamlit as st
-from digital_twin.logger import get_logger
+import logging
 
-logger = get_logger(__name__)
+try:
+    from digital_twin.logger import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
+
 
 def _resolve_project_id(px, project_name: str) -> str | None:
     """

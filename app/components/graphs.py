@@ -2,9 +2,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pyvis.network import Network
 import pandas as pd
-from digital_twin.logger import get_logger
+import logging
 
-logger = get_logger(__name__)
+try:
+    from digital_twin.logger import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
 
 @st.cache_data(show_spinner=False)
 def _build_graph_html(df_paths: pd.DataFrame) -> str:
@@ -34,11 +38,10 @@ def _build_graph_html(df_paths: pd.DataFrame) -> str:
     return html
 
 
-@st.cache_data(show_spinner=False)
 def _build_centrality_style(df: pd.DataFrame):
     """
     Applies background_gradient styling to the centrality DataFrame.
-    Cached so it doesn't recompute on every rerun.
+    NOTE: Styler objects cannot be pickled, so this is NOT cached.
     """
     logger.debug("Building centrality gradient style")
     return df.style.background_gradient(cmap='Reds', subset=['CentralityScore'])

@@ -1,7 +1,11 @@
 import streamlit as st
-from digital_twin.logger import get_logger
+import logging
 
-logger = get_logger(__name__)
+try:
+    from digital_twin.logger import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
 
 def render_root_cause_analysis(df_hotspots):
     st.header("🔍 Root Cause Analysis & Personnel Routing")
