@@ -5,7 +5,6 @@ import pandas as pd
 
 def render_topology_graph(df_paths: pd.DataFrame, df_linked_to: pd.DataFrame | None = None):
     """Generates an interactive HTML network graph from edge data."""
-    st.subheader("🕸️ Topology & Failure Paths")
     
     # Initialize PyVis network
     net = Network(height="400px", width="100%", bgcolor="#0E1117", font_color="white")
