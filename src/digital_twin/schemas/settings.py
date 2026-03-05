@@ -10,9 +10,10 @@ class Settings(BaseSettings):
     pmtx_token: str = ""
     jarvispy_url: str = ""
     pmtx_project: str = ""
-    concept_centrality: str = ""
-    concept_shortest_path: str = ""
-    concept_hotspot: str = ""
+    concept_centrality: str = "component_centrality"
+    concept_shortest_path: str = "shortest_path"
+    concept_hotspot: str = "hotspot_metadata"
+    concept_linked_to: str = "linked_to"
 
     model_config = ConfigDict(
         extra="ignore"
