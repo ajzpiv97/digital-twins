@@ -49,33 +49,44 @@ def render_propagation_trace(df_propagated: pd.DataFrame):
     }
     </style>
     ''', unsafe_allow_html=True)
+
+    origins = df_propagated["OriginalSensor"].unique()
+
+    if len(origins) > 1:
+        selected_origin = st.selectbox("Select Root Cause Signature to Trace", origins)
+    else:
+        selected_origin = origins[0]
+        st.markdown(f"**Root Cause Signature:** `{selected_origin}`")
+
+    # Filter to only the selected origin trace
+    df_subset = df_propagated[df_propagated["OriginalSensor"] == selected_origin].sort_values(by="PropagationOrder")
     
-    # Sort just in case it isn't strictly sorted yet
-    df_sorted = df_propagated.sort_values(by="PropagationOrder")
-    
-    html_content = '<div class="timeline-container">'
-    
-    for _, row in df_sorted.iterrows():
-        order = row['PropagationOrder']
-        orig = row['OriginalSensor']
-        target = row['NextAffected']
+    # We can wrap the timeline in a scrollable container to save space
+    # if it gets too long.
+    with st.container(height=500, border=False):
+        html_content = '<div class="timeline-container">'
         
-        # Highlight the first item as the Origin
-        if order == 1:
-            title = f"💥 Origin: {orig}"
-            detail = f"Failure originated here and propagated to {target}"
-        else:
-            title = f"🔻 Impact: {target}"
-            detail = f"Propagated downstream from previous failure points (Root: {orig})"
+        for idx, row in df_subset.iterrows():
+            order = row['PropagationOrder']
+            orig = row['OriginalSensor']
+            target = row['NextAffected']
             
-        html_content += f'''
-        <div class="timeline-item">
-            <div class="timeline-title">{title}</div>
-            <div class="timeline-detail">{detail}</div>
-            <div class="timeline-detail" style="font-size: 0.8em; margin-top:2px;">Sequence Step: {order}</div>
-        </div>
-        '''
+            # Using the first element as the Origin
+            if row.equals(df_subset.iloc[0]):
+                title = f"💥 Origin: {orig}"
+                detail = f"Failure originated here and propagated to {target}"
+            else:
+                title = f"🔻 Impact: {target}"
+                detail = f"Propagated downstream in severity chain"
+                
+            html_content += f'''
+            <div class="timeline-item">
+                <div class="timeline-title">{title}</div>
+                <div class="timeline-detail">{detail}</div>
+                <div class="timeline-detail" style="font-size: 0.8em; margin-top:2px;">Sequence Step: {order}</div>
+            </div>
+            '''
+            
+        html_content += '</div>'
         
-    html_content += '</div>'
-    
-    st.markdown(html_content, unsafe_allow_html=True)
+        st.markdown(html_content, unsafe_allow_html=True)
