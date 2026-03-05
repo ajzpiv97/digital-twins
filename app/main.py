@@ -41,19 +41,38 @@ df_centrality = DataLoader.get_centrality_data(_base / settings.concept_centrali
 df_paths = DataLoader.get_shortest_paths(_base / settings.concept_shortest_path)
 df_hotspots = DataLoader.get_hotspot_metadata(_base / settings.concept_hotspot)
 df_linked_to = DataLoader.get_linked_to(_base / settings.concept_linked_to)
+df_propagated = DataLoader.get_propagated_failures(_base / settings.concept_propagated_failure)
+
+# --- Computations for top-level KPIs ---
+total_components = len(df_centrality)
+critical_count = df_hotspots['Component'].nunique() if df_hotspots is not None and not df_hotspots.empty else 0
+
+if not df_centrality.empty:
+    max_score = df_centrality['CentralityScore'].max()
+    top_nodes = df_centrality[df_centrality['CentralityScore'] == max_score]['Component'].tolist()
+else:
+    top_nodes = []
 
 # --- Header ---
 st.title("🚀 Digital Twin Demo: Rocket Engine Failure Detection & Response")
 st.markdown("Revolutionizing Aerospace Safety Through Intelligent Failure Prediction and Response")
 
+# --- Top-Level KPIs ---
+st.subheader("System Overview")
+metric1, metric2, metric3 = st.columns(3)
+metric1.metric("Monitored Components", str(total_components))
+hotspot_delta = "⚠ Requires Attention" if critical_count > 0 else "✓ All Clear"
+hotspot_delta_color = "inverse" if critical_count > 0 else "normal"
+metric2.metric("Critical Hotspots", str(critical_count), hotspot_delta, delta_color=hotspot_delta_color)
+metric3.metric("High Centrality Nodes", str(len(top_nodes)), "High Risk", delta_color="inverse")
+st.divider()
+
 # --- Tabs ---
-tab1, tab2, tab3 = st.tabs(["**Overview**", "**Live Diagnostics**", "**Root Cause Analysis**"])
+# As per feedback, we simplify the tabs to focus strongly on the action-oriented flow
+tab1, tab2 = st.tabs(["**Live Diagnostics & Tracing**", "**Root Cause Actions & Notifications**"])
 
 with tab1:
-    render_overview()
+    render_diagnostics(df_centrality, df_paths, df_hotspots, df_linked_to, df_propagated, top_nodes)
 
 with tab2:
-    render_diagnostics(df_centrality, df_paths, df_hotspots, df_linked_to)
-
-with tab3:
     render_root_cause_analysis(df_hotspots)

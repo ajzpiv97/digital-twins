@@ -2,33 +2,22 @@ import streamlit as st
 import pandas as pd
 from components.graphs import render_topology_graph, render_centrality_table
 from components.chat import render_chat_interface
+from components.propagation import render_propagation_trace
 
-def render_diagnostics(df_centrality: pd.DataFrame, df_paths: pd.DataFrame, df_hotspots: pd.DataFrame, df_linked_to: pd.DataFrame | None = None):
-    # --- Compute Metrics from real data ---
-    total_components = len(df_centrality)
-
-    if not df_centrality.empty:
-        max_score = df_centrality['CentralityScore'].max()
-        top_nodes = df_centrality[df_centrality['CentralityScore'] == max_score]['Component'].tolist()
-    else:
-        top_nodes = []
-
-    # Critical hotspots = unique affected components in hotspot metadata
-    critical_count = df_hotspots['Component'].nunique() if df_hotspots is not None and not df_hotspots.empty else 0
-
-
-    st.subheader("System Overview")
-    metric1, metric2, metric3 = st.columns(3)
-    metric1.metric("Monitored Components", str(total_components))
-    hotspot_delta = "⚠ Requires Attention" if critical_count > 0 else "✓ All Clear"
-    hotspot_delta_color = "inverse" if critical_count > 0 else "normal"
-    metric2.metric("Critical Hotspots", str(critical_count), hotspot_delta, delta_color=hotspot_delta_color)
-    metric3.metric("High Centrality Nodes", str(len(top_nodes)), "High Risk", delta_color="inverse")
+def render_diagnostics(df_centrality: pd.DataFrame, df_paths: pd.DataFrame, df_hotspots: pd.DataFrame, df_linked_to: pd.DataFrame | None, df_propagated: pd.DataFrame, top_nodes: list):
     
-    st.divider()
+    col1, col2 = st.columns([2, 1], gap="large")
     
-    with st.expander("🕸️ Topology & Failure Paths", expanded=True):
+    with col1:
+        st.subheader("🕸️ Topology & Failure Paths")
         render_topology_graph(df_paths, df_linked_to)
+        
+    with col2:
+        render_propagation_trace(df_propagated)
+        
+        st.divider()
+        st.subheader("🤔 Why this hotspot?")
+        st.info("The root cause analysis engine traced the cascading anomaly signatures back to the originating sensor. The topology graph confirms a direct propagation path through high-centrality components.")
     
     st.divider()
 

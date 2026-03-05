@@ -114,3 +114,18 @@ class DataLoader:
             "Parent": ["HPOTP", "HPOTP", "Main_Valve", "Fuel_Pump"],
             "Component": ["Fuel_Pump", "Sensor_A", "Nozzle", "Sensor_A"],
         })
+
+    @classmethod
+    def get_propagated_failures(cls, folder_path: str | Path) -> pd.DataFrame:
+        """Retrieves Propagated Failure sequence data."""
+        logger.debug("get_propagated_failures — folder: %s", folder_path)
+        df = cls.load_parquet_from_folder(str(folder_path))
+        if df is not None:
+            return df
+
+        logger.warning("Propagated failure data not found — using fallback mock data")
+        return pd.DataFrame({
+            "OriginalSensor": ["Sensor_A", "Sensor_A", "Sensor_A"],
+            "NextAffected": ["Fuel_Pump", "HPOTP", "Main_Valve"],
+            "PropagationOrder": [1, 2, 3]
+        })
